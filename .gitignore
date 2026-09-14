@@ -1,0 +1,3 @@
+data/*
+!data/olist/
+data/olist/*.csv

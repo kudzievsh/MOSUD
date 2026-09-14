@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: mosud-postgres
+    environment:
+      POSTGRES_DB: olist
+      POSTGRES_USER: student
+      POSTGRES_PASSWORD: student
+    ports:
+      - "5432:5432"
+    volumes:
+      - mosud_pgdata:/var/lib/postgresql/data
+      - ../data/olist:/data/olist:ro
+
+volumes:
+  mosud_pgdata:

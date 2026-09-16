@@ -1,20 +1,3 @@
--- Практическая работа №1
--- ФИО: <заполнить>
--- Группа: <заполнить>
--- Вариант: не предусмотрен
---
--- Полностью воспроизводимый сценарий:
--- 1) создаются схемы и таблицы;
--- 2) CSV загружаются через \copy из каталога /data/olist внутри контейнера;
--- 3) добавляются PK/FK;
--- 4) выполняется ANALYZE.
---
--- Перед запуском убедитесь, что 9 CSV лежат в:
--- ..\data\olist\
---
--- После запуска через docker exec:
--- docker exec -i mosud-postgres psql -U student -d olist < lab01/schema.sql
-
 CREATE SCHEMA IF NOT EXISTS olist;
 CREATE SCHEMA IF NOT EXISTS lab;
 

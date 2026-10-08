@@ -1,22 +1,13 @@
 \pset pager off
 \echo '============================================================'
-\echo 'LAB 05. Variant 3. EXISTS and relational division'
-\echo 'Target states: BA, PE, CE'
+\echo 'LAB 05. Variant 3.'
 \echo '============================================================'
 
 SET search_path TO olist, public;
 
--- Docker Desktop containers often have a small /dev/shm.
--- Disable parallel query for this lab so the equivalence checks do not
--- require dynamic shared-memory segments. This changes only the execution
--- plan, not the result of the queries.
 SET max_parallel_workers_per_gather = 0;
 
--- ============================================================
--- Base relation used in the task:
--- delivered orders only, non-NULL product categories only.
--- One row corresponds to category/state/order occurrence.
--- ============================================================
+
 DROP VIEW IF EXISTS pg_temp.lab05_sales;
 CREATE TEMP VIEW lab05_sales AS
 SELECT DISTINCT
@@ -42,9 +33,7 @@ WITH target_states(state) AS (
 SELECT * FROM target_states ORDER BY state;
 
 -- ============================================================
--- 2. Relational division using double NOT EXISTS.
--- Meaning: there is no required state for which there is no
--- matching sale of the category.
+-- 2.
 -- ============================================================
 DROP VIEW IF EXISTS pg_temp.lab05_not_exists;
 CREATE TEMP VIEW lab05_not_exists AS
@@ -79,8 +68,7 @@ ORDER BY category
 LIMIT 20;
 
 -- ============================================================
--- 3. The same division using GROUP BY / HAVING COUNT(DISTINCT).
--- The number of matched target states must equal divisor size.
+-- 3. 
 -- ============================================================
 DROP VIEW IF EXISTS pg_temp.lab05_group_by;
 CREATE TEMP VIEW lab05_group_by AS
@@ -101,9 +89,7 @@ SELECT COUNT(*) AS category_count
 FROM lab05_group_by;
 
 -- ============================================================
--- 4. The same division using EXCEPT inside NOT EXISTS.
--- For a category, target_states EXCEPT states where the category
--- was sold must be empty.
+-- 4. 
 -- ============================================================
 DROP VIEW IF EXISTS pg_temp.lab05_except;
 CREATE TEMP VIEW lab05_except AS
@@ -131,8 +117,7 @@ SELECT COUNT(*) AS category_count
 FROM lab05_except;
 
 -- ============================================================
--- 5. Equivalence checks in both directions.
--- All mismatch counts must be 0.
+-- 5. 
 -- ============================================================
 \echo ''
 \echo '5. Equivalence checks'
@@ -167,8 +152,7 @@ SELECT
     ) AS mismatch_count;
 
 -- ============================================================
--- 6. Diagnostic table for one found category:
--- category -> state -> number of distinct delivered orders.
+-- 6.
 -- ============================================================
 \echo ''
 \echo '6. Diagnostic table for one category'
@@ -194,11 +178,7 @@ GROUP BY cc.category, ts.state
 ORDER BY ts.state;
 
 -- ============================================================
--- 7. Empty target_states.
--- Universal condition is vacuously true: for every category,
--- there is no required state that is missing, because there are
--- no required states at all. Therefore the double NOT EXISTS
--- version returns all candidate categories.
+-- 7. 
 -- ============================================================
 \echo ''
 \echo '7. Empty target_states: universal condition is vacuously true'
@@ -229,15 +209,10 @@ SELECT
     (SELECT COUNT(*) FROM result) AS result_with_empty_divisor,
     (SELECT COUNT(*) FROM categories) = (SELECT COUNT(*) FROM result) AS all_categories_returned;
 
--- Important semantic note:
--- A naive INNER JOIN + GROUP BY/HAVING implementation has no groups
--- when target_states is empty, so it returns zero rows. To preserve
--- the mathematical semantics for an empty divisor, use NOT EXISTS / EXCEPT
--- or explicitly handle the empty-divisor case.
+
 
 -- ============================================================
--- 8. Additional task: sellers who sold to customers from every
--- target state BA, PE, CE.
+-- 8. 
 -- ============================================================
 \echo ''
 \echo '8. Additional task: sellers covering all target states'

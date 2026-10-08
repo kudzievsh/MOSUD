@@ -1,7 +1,6 @@
 \pset pager off
 \echo '============================================================'
-\echo 'LAB 06. Variant 3. Subqueries and predicate logic'
-\echo 'Task: orders whose item total is above the average order total'
+\echo 'LAB 06. Variant 3.'
 \echo '============================================================'
 
 SET search_path TO olist, public;
@@ -20,10 +19,6 @@ FROM olist.order_items;
 
 -- ============================================================
 -- 1. Main solution.
--- Requirements covered here:
---   * correlated scalar subquery: SUM(price) for the current order;
---   * EXISTS: verifies that the current order has at least one item;
---   * independent scalar subquery: average of per-order totals.
 -- ============================================================
 DROP VIEW IF EXISTS pg_temp.lab06_main;
 CREATE TEMP VIEW lab06_main AS
@@ -65,7 +60,6 @@ LIMIT 10;
 
 -- ============================================================
 -- 2. Alternative solution using CTE + pre-aggregation.
--- One row per order is formed first, then compared with the average.
 -- ============================================================
 DROP VIEW IF EXISTS pg_temp.lab06_cte;
 CREATE TEMP VIEW lab06_cte AS
@@ -94,7 +88,6 @@ FROM pg_temp.lab06_cte;
 
 -- ============================================================
 -- 3. EXCEPT equivalence check in both directions.
--- Both mismatch counts must be zero.
 -- ============================================================
 \echo ''
 \echo '3. Equivalence check with EXCEPT in both directions'
@@ -118,9 +111,6 @@ FROM (
 
 -- ============================================================
 -- 4. ANY / ALL demonstration.
--- Comparison set: totals of the first five orders by order_id.
--- > ANY means greater than at least one value from the set.
--- > ALL means greater than every value from the set.
 -- ============================================================
 \echo ''
 \echo '4. ANY / ALL demonstration'
@@ -183,10 +173,3 @@ SELECT
     (SELECT COUNT(*) FROM order_totals ot WHERE ot.order_total > ANY (SELECT order_total FROM comparison_set)) AS any_demo_count,
     (SELECT COUNT(*) FROM order_totals ot WHERE ot.order_total > ALL (SELECT order_total FROM comparison_set)) AS all_demo_count;
 
--- Control-question notes:
--- 1) A correlated subquery references columns of the current row of the outer query;
---    an independent subquery can be executed without the outer row.
--- 2) EXISTS is convenient when only the fact of a matching row matters and is NULL-safe
---    for many semi-/anti-join patterns where IN/NOT IN can be problematic.
--- 3) A scalar subquery is used where SQL expects one scalar value, so more than one row
---    would make the expression ambiguous and PostgreSQL raises an error.

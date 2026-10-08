@@ -1,13 +1,13 @@
 \pset pager off
 \echo '============================================================'
-\echo 'LAB 07. NULL, three-valued logic and data quality'
+\echo 'LAB 07.'
 \echo '============================================================'
 
 SET search_path TO olist, public;
 SET max_parallel_workers_per_gather = 0;
 
 -- ============================================================
--- 1. NULL counts for potentially optional columns.
+-- 1. NULL counts
 -- ============================================================
 \echo ''
 \echo '1A. NULL profile: orders'
@@ -45,7 +45,6 @@ FROM olist.order_reviews;
 
 -- ============================================================
 -- 2. COUNT(*) vs COUNT(nullable_column).
--- COUNT(column) ignores NULL values.
 -- ============================================================
 \echo ''
 \echo '2. COUNT(*) versus COUNT(order_delivered_customer_date)'
@@ -57,7 +56,6 @@ FROM olist.orders;
 
 -- ============================================================
 -- 3. = NULL and <> NULL produce UNKNOWN, not TRUE.
--- Correct checks use IS NULL / IS NOT NULL.
 -- ============================================================
 \echo ''
 \echo '3. Wrong NULL comparisons versus correct predicates'
@@ -80,7 +78,6 @@ SELECT
 
 -- ============================================================
 -- 5. NOT IN versus NOT EXISTS when the subquery contains NULL.
--- temp_ids contains one real order_id and one NULL.
 -- ============================================================
 \echo ''
 \echo '5. NOT IN versus NOT EXISTS with NULL in the subquery'
@@ -111,9 +108,6 @@ SELECT
 
 -- ============================================================
 -- 6. LEFT JOIN predicate in ON versus WHERE.
--- In ON: all orders remain, reviews with score < 4 simply do not match.
--- In WHERE: rows with no matching review are removed, so the LEFT JOIN
--- behaves like an INNER JOIN for this predicate.
 -- ============================================================
 \echo ''
 \echo '6. LEFT JOIN: filter in ON versus filter in WHERE'
@@ -135,8 +129,6 @@ WHERE r.review_score >= 4;
 
 -- ============================================================
 -- 7. COALESCE and NULLIF.
--- COALESCE supplies text for missing comments.
--- NULLIF protects division from a zero denominator.
 -- ============================================================
 \echo ''
 \echo '7A. COALESCE for missing review text'
@@ -190,11 +182,6 @@ FROM olist.order_reviews;
 
 -- ============================================================
 -- 9. Interpretation.
--- Natural NULL example: review_comment_message.
--- A buyer may legitimately leave only a numeric score and no text.
--- Potential data-quality NULL example: product_category_name.
--- A catalog product normally should have a category; missing category reduces
--- analytical usefulness and is more plausibly a completeness problem.
 -- ============================================================
 \echo ''
 \echo '9. Natural NULL vs potential data-quality NULL'
@@ -225,9 +212,3 @@ SELECT
      LEFT JOIN olist.order_reviews r
        ON r.order_id = o.order_id
      WHERE r.review_score >= 4) AS orders_left_join_filter_where;
-
--- Control-question notes:
--- 1) NULL = NULL is UNKNOWN because NULL means an unknown value, not a concrete value.
--- 2) A predicate on the right table in WHERE removes NULL-extended rows produced by LEFT JOIN.
--- 3) NOT EXISTS checks absence of matching rows directly and is not poisoned by an unrelated
---    NULL in the subquery, unlike NOT IN under SQL three-valued logic.

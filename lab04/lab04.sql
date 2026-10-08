@@ -1,6 +1,6 @@
 \pset pager off
 \echo '============================================================'
-\echo 'LAB 04. Variant 3. Category revenue and complex JOINs'
+\echo 'LAB 04. Variant 3.'
 \echo '============================================================'
 
 SET search_path TO olist, public;
@@ -37,7 +37,7 @@ SET search_path TO olist, public;
 */
 
 \echo ''
-\echo '1. Main query: category revenue (4 tables, translation via LEFT JOIN)'
+\echo '1. Main query'
 
 DROP VIEW IF EXISTS pg_temp.lab04_category_revenue;
 CREATE TEMP VIEW lab04_category_revenue AS
@@ -70,7 +70,7 @@ ORDER BY revenue DESC, category
 LIMIT 20;
 
 \echo ''
-\echo '2. LEFT JOIN diagnostic: categories are preserved even without translation'
+\echo '2. LEFT JOIN'
 
 SELECT
     COUNT(DISTINCT p.product_category_name) FILTER (
@@ -89,7 +89,7 @@ LEFT JOIN olist.product_category_name_translation AS t
     ON t.product_category_name = p.product_category_name;
 
 \echo ''
-\echo '3. Anti-join: categories that have no translation row'
+\echo '3. Anti-join'
 
 SELECT
     p.product_category_name,
@@ -124,7 +124,7 @@ FROM (
 */
 
 \echo ''
-\echo '4. INTENTIONALLY WRONG JOIN: items x payments multiplication'
+\echo '4. WRONG JOIN:'
 
 DROP VIEW IF EXISTS pg_temp.lab04_wrong_join;
 CREATE TEMP VIEW lab04_wrong_join AS
@@ -147,7 +147,6 @@ SELECT
 FROM lab04_wrong_join;
 
 \echo ''
-\echo 'Reference totals on the same scope (orders that have both items and payments)'
 
 SELECT
     (SELECT COUNT(*)
@@ -179,7 +178,7 @@ SELECT
 */
 
 \echo ''
-\echo '5. CORRECTED JOIN: pre-aggregate items and payments to one row per order'
+\echo '5. CORRECTED JOIN'
 
 DROP VIEW IF EXISTS pg_temp.lab04_items_by_order;
 CREATE TEMP VIEW lab04_items_by_order AS
@@ -220,7 +219,7 @@ SELECT
 FROM lab04_correct_join;
 
 \echo ''
-\echo '6. Proof that pre-aggregation matches the reference totals'
+\echo '6.'
 
 WITH reference AS (
     SELECT
